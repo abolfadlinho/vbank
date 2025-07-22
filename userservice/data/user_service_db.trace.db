@@ -1,0 +1,3 @@
+2025-07-21 15:59:35 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
+select user0_.id as col_0_0_ from users user0_ where user0_.username=? limit ? [42104-214]
