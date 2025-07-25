@@ -2,6 +2,7 @@ package com.vbank.accountservice.controller;
 
 import com.vbank.accountservice.dto.CreateAccountRequest;
 import com.vbank.accountservice.dto.TransferRequest;
+import com.vbank.accountservice.dto.TransferRequestWithId;
 import com.vbank.accountservice.model.Account;
 import com.vbank.accountservice.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,12 @@ public class AccountController {
     @PutMapping("/transfer")
     public ResponseEntity<Void> transferFunds(@RequestBody TransferRequest request) {
         accountService.transferFunds(request.fromAccountNumber(), request.toAccountNumber(), request.amount());
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/transferWithId")
+    public ResponseEntity<Void> transferFundsWithId(@RequestBody TransferRequestWithId request) {
+        accountService.transferFundsWithId(request.fromAccountId(), request.toAccountId(), request.amount());
         return ResponseEntity.ok().build();
     }
 

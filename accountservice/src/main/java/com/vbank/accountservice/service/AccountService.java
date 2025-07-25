@@ -70,9 +70,35 @@ public class AccountService {
         Account toAccount = accountRepository.findByAccountNumber(toAccountNumber)
                 .orElseThrow(() -> new EntityNotFoundException("Destination account not found."));
 
-        if (fromAccount.getStatus() != AccountStatus.ACTIVE) {
+        /*if (fromAccount.getStatus() != AccountStatus.ACTIVE) {
             throw new IllegalStateException("Source account is not active.");
+        }*/
+        if (fromAccount.getBalance().compareTo(amount) < 0) {
+            throw new IllegalStateException("Insufficient funds in the source account.");
         }
+
+        // Perform the transfer
+        fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
+        toAccount.setBalance(toAccount.getBalance().add(amount));
+
+        accountRepository.save(fromAccount);
+        accountRepository.save(toAccount);
+    }
+
+    @Transactional
+    public void transferFundsWithId(UUID fromAccountId, UUID toAccountId, BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Transfer amount must be positive.");
+        }
+
+        Account fromAccount = accountRepository.findById(fromAccountId)
+                .orElseThrow(() -> new EntityNotFoundException("Source account not found."));
+        Account toAccount = accountRepository.findById(toAccountId)
+                .orElseThrow(() -> new EntityNotFoundException("Destination account not found."));
+
+        /*if (fromAccount.getStatus() != AccountStatus.ACTIVE) {
+            throw new IllegalStateException("Source account is not active.");
+        }*/
         if (fromAccount.getBalance().compareTo(amount) < 0) {
             throw new IllegalStateException("Insufficient funds in the source account.");
         }

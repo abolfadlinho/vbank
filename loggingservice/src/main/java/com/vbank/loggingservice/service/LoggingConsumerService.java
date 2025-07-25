@@ -1,5 +1,7 @@
 package com.vbank.loggingservice.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.vbank.loggingservice.dto.LogMessage;
 import com.vbank.loggingservice.model.LogEntry;
 import com.vbank.loggingservice.repository.LogEntryRepository;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+
 
 /**
  * Service that consumes messages from a Kafka topic and persists them. [cite: 356]
@@ -29,14 +32,18 @@ public class LoggingConsumerService {
      * @param logMessage The deserialized message from Kafka.
      */
     @KafkaListener(topics = "${vbank.kafka.topic.name}", groupId = "logging-group")
-    public void consumeLog(LogMessage logMessage) {
+    public void consumeLog(String rawJson) {
         try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+
+            LogMessage logMessage = mapper.readValue(rawJson, LogMessage.class);
             logger.info("Received log message -> {}", logMessage.getMessage());
 
             LogEntry logEntry = new LogEntry();
-            logEntry.setMessage(logMessage.getMessage()); // [cite: 360]
-            logEntry.setMessageType(logMessage.getMessageType()); // [cite: 360]
-            logEntry.setDateTime(LocalDateTime.now()); // [cite: 360]
+            logEntry.setMessage(logMessage.getMessage());
+            logEntry.setMessageType(logMessage.getMessageType());
+            logEntry.setDateTime(logMessage.getDateTime());
 
             logEntryRepository.save(logEntry);
             logger.info("Successfully persisted log entry to the database.");
@@ -44,4 +51,5 @@ public class LoggingConsumerService {
             logger.error("Failed to process or save log message.", e);
         }
     }
+
 }

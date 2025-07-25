@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class AccountDetails {
-    private String accountId;
+    private String id;
     private String accountNumber;
     private String accountType;
     private BigDecimal balance;

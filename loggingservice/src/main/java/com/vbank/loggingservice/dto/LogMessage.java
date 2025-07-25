@@ -4,6 +4,8 @@ import com.vbank.loggingservice.model.MessageType;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 /**
  * DTO for deserializing incoming Kafka messages.
  */
@@ -12,4 +14,5 @@ import lombok.Setter;
 public class LogMessage {
     private String message; // The JSON text of the request or response [cite: 360]
     private MessageType messageType; // Indicates if the log is a Request or Response [cite: 360]
+    private LocalDateTime dateTime;
 }

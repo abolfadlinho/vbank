@@ -66,7 +66,7 @@ public class TransactionService {
 
             // Call the Account Service's /accounts/transfer endpoint
             restTemplate.exchange(
-                    accountServiceUrl + "/transfer",
+                    accountServiceUrl + "/transferWithId",
                     HttpMethod.PUT,
                     requestEntity,
                     Void.class // We don't expect a body in the response

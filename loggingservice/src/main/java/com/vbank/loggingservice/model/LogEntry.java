@@ -22,7 +22,7 @@ public class LogEntry {
     private String message; // [cite: 360]
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "message_type", nullable = false, columnDefinition = "message_type")
+    @Column(name = "message_type", nullable = false)
     private MessageType messageType; // [cite: 360]
 
     @Column(name = "date_time", nullable = false)

@@ -2,11 +2,12 @@ package com.vbank.bffservice.dto.transfer;
 
 import lombok.Data;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 public class TransferRequest {
-    private String fromAccountId;
-    private String toAccountId;
+    private UUID fromAccountId;
+    private UUID toAccountId;
     private BigDecimal amount;
     private String description;
 }

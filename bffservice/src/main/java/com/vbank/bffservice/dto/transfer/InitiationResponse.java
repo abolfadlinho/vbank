@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class InitiationResponse {
-    private String transactionId;
+    private String id;
     private String status;
     private LocalDateTime timestamp;
 }

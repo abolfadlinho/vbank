@@ -56,13 +56,15 @@ public class OrchestrationService {
     public Mono<DashboardResponse> getDashboard(String userId) {
         // 1. Fetch User Profile [cite: 278]
         Mono<UserProfile> userProfileMono = webClient.get()
-                .uri(userServiceUrl + "/users/{userId}/profile", userId)
+                .uri(userServiceUrl + "/users/" + userId + "/profile")
+                //.uri(userServiceUrl + "/users/{userId}/profile", userId)
                 .retrieve()
                 .bodyToMono(UserProfile.class);
 
         // 2. Fetch Accounts [cite: 279]
         Mono<List<AccountDetails>> accountsMono = webClient.get()
-                .uri(accountServiceUrl + "/{userId}/accounts", userId)
+                //.uri(accountServiceUrl + "/accounts/{userId}/accounts", userId)
+                .uri(accountServiceUrl + "/accounts/" + userId + "/accounts")
                 .retrieve()
                 .bodyToFlux(AccountDetails.class)
                 .collectList();
@@ -83,8 +85,9 @@ public class OrchestrationService {
     }
 
     private Mono<AccountDetails> getTransactionsForAccount(AccountDetails account) {
+        System.out.println(account.getId());
         return webClient.get()
-                .uri(transactionServiceUrl + "/{accountId}/transactions", account.getAccountId())
+                .uri(transactionServiceUrl + "/transactions/accounts/" + account.getId() + "/transactions")
                 .retrieve()
                 .bodyToFlux(TransactionDetails.class)
                 .collectList()
@@ -98,19 +101,36 @@ public class OrchestrationService {
     // --- Transfer Orchestration ---
 
     public Mono<TransferResponse> executeTransfer(TransferRequest request) {
-        // 1. Call Initiation Service [cite: 333]
+        // 1. Call Initiation Service
         return webClient.post()
-                .uri(transactionServiceUrl + "/transfer/initiation")
+                .uri(transactionServiceUrl + "/transactions/transfer/initiation")
                 .bodyValue(request)
                 .retrieve()
                 .onStatus(HttpStatus::isError, resp -> Mono.error(new DownstreamServiceException("Transaction Initiation Failed", resp.statusCode())))
                 .bodyToMono(InitiationResponse.class)
-                // 2. If initiation is successful, call Execution Service [cite: 334-335]
+                // 2. If initiation is successful, call Execution Service
                 .flatMap(initiationResponse -> webClient.post()
-                        .uri(transactionServiceUrl + "/transfer/execution")
-                        .bodyValue(new ExecutionRequest(initiationResponse.getTransactionId()))
+                        .uri(transactionServiceUrl + "/transactions/transfer/execution/" + initiationResponse.getId())
                         .retrieve()
+                        // Capture the status code here before bodyToMono
                         .onStatus(HttpStatus::isError, resp -> Mono.error(new DownstreamServiceException("Transaction Execution Failed", resp.statusCode())))
-                        .bodyToMono(TransferResponse.class));
+                        .toEntity(TransferResponse.class) // Use toEntity to get access to status
+                        .map(responseEntity -> {
+                            TransferResponse transferResponse = responseEntity.getBody();
+                            HttpStatus statusCode = (HttpStatus) responseEntity.getStatusCode();
+
+                            if (transferResponse == null) {
+                                transferResponse = new TransferResponse(); // Create if body is null
+                            }
+
+                            // Set the message based on the status
+                            if (statusCode.is2xxSuccessful()) {
+                                transferResponse.setMessage("Transfer executed successfully.");
+                            } else {
+                                // This block might not be reached due to onStatus, but good for completeness
+                                transferResponse.setMessage("Transfer execution failed with status: " + statusCode.value());
+                            }
+                            return transferResponse;
+                        }));
     }
 }

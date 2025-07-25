@@ -10,5 +10,6 @@ public class AccountserviceApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(AccountserviceApplication.class, args);
+        System.out.println("Accounts service up and running...");
     }
 }

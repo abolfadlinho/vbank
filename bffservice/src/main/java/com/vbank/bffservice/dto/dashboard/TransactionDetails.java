@@ -6,8 +6,9 @@ import java.time.LocalDateTime;
 
 @Data
 public class TransactionDetails {
-    private String transactionId;
-    private String accountId;
+    private String id;
+    private String fromAccountId;
+    private String toAccountId;
     private BigDecimal amount;
     private String description;
     private LocalDateTime timestamp;
