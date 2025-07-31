@@ -1,0 +1,53 @@
+<sequence xmlns="http://ws.apache.org/ns/synapse" name="validate-app-name-header">
+    <log level="custom">
+        <property name="Header Validation" value="Checking APP-NAME"/>
+    </log>
+
+    <property name="appNameHeader" expression="get-property('transport', 'APP-NAME')" scope="default" type="STRING"/>
+
+    <!-- If APP-NAME header is missing -->
+    <filter xpath="not($ctx:appNameHeader)">
+        <then>
+            <property name="ERROR_MESSAGE" value="Missing required header: APP-NAME" scope="default"/>
+            <property name="HTTP_SC" value="400" scope="axis2"/>
+            <property name="RESPONSE" value="true" scope="default"/>
+            <property name="Content-Type" value="application/json" scope="transport"/>
+
+            <payloadFactory media-type="json">
+                <format>
+                    {
+                        "status": 400,
+                        "error": "Bad Request",
+                        "message": "Invalid APP-NAME header. Allowed values are 'PORTAL' or 'MOBILE'."
+                    }
+                </format>
+                <args/>
+            </payloadFactory>
+
+            <respond/>
+        </then>
+    </filter>
+
+    <!-- If APP-NAME header has an invalid value -->
+    <filter xpath="not(fn:upper-case($ctx:appNameHeader) = 'PORTAL' or fn:upper-case($ctx:appNameHeader) = 'MOBILE')">
+        <then>
+            <property name="ERROR_MESSAGE" value="Invalid APP-NAME value. Allowed: PORTAL or MOBILE" scope="default"/>
+            <property name="HTTP_SC" value="400" scope="axis2"/>
+            <property name="RESPONSE" value="true" scope="default"/>
+            <property name="Content-Type" value="application/json" scope="transport"/>
+
+            <payloadFactory media-type="json">
+                <format>
+                    {
+                        "status": 400,
+                        "error": "Bad Request",
+                        "message": "Invalid APP-NAME header. Allowed values are 'PORTAL' or 'MOBILE'."
+                    }
+                </format>
+                <args/>
+            </payloadFactory>
+
+            <respond/>
+        </then>
+    </filter>
+</sequence>

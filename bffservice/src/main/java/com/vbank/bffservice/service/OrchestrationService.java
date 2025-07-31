@@ -54,14 +54,14 @@ public class OrchestrationService {
     // --- Dashboard Orchestration ---
 
     public Mono<DashboardResponse> getDashboard(String userId) {
-        // 1. Fetch User Profile [cite: 278]
+        // 1. Fetch User Profile
         Mono<UserProfile> userProfileMono = webClient.get()
                 .uri(userServiceUrl + "/users/" + userId + "/profile")
                 //.uri(userServiceUrl + "/users/{userId}/profile", userId)
                 .retrieve()
                 .bodyToMono(UserProfile.class);
 
-        // 2. Fetch Accounts [cite: 279]
+        // 2. Fetch Accounts
         Mono<List<AccountDetails>> accountsMono = webClient.get()
                 //.uri(accountServiceUrl + "/accounts/{userId}/accounts", userId)
                 .uri(accountServiceUrl + "/accounts/" + userId + "/accounts")

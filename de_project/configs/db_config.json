@@ -1,0 +1,13 @@
+{
+  "postgresql": {
+    "host": "localhost",
+    "port": "5432", 
+    "database": "transaction_db",
+    "user": "postgres",
+    "password": "hamada"
+  },
+  "spark": {
+    "master": "spark://localhost:7077",
+    "warehouse_dir": "/opt/spark/warehouse"
+  }
+}

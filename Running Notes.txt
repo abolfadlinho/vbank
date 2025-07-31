@@ -1,4 +1,4 @@
-1. start zoo-keeper -> start zookeeper: C:\kafka>.\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
+1. start zoo-keeper -> C:\kafka>.\bin\windows\zookeeper-server-start.bat .\config\zookeeper.properties
 2. start kafka -> C:\kafka>.\bin\windows\kafka-server-start.bat .\config\server.properties
 (ONLY ONCE) create kafka topic -> C:\kafka\bin\windows>kafka-topics.bat --create --bootstrap-server localhost:9092 --topic vbank-logs
 3. start in order: user, account, transaction, logging & bff from Intelij
@@ -17,3 +17,5 @@ Observing Database items:
 2. enter psql -U postgres -d NAME_OF_DB
 3. you will be prompted for password enter it (hamada)
 4. run SQL queries normally, dont forget the ; at the end of all queries
+
+WSO2 finishes at [2025-07-29 14:30:40,822]  INFO - EventProcessorDeployer Execution plan is deployed successfully and in active state  : carbon.super_resource_10KPerMin_default

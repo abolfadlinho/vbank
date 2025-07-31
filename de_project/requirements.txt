@@ -1,0 +1,20 @@
+# Core dependencies
+pandas>=1.5.0
+numpy>=1.21.0
+psycopg2-binary>=2.9.0
+sqlalchemy>=1.4.0
+
+# Spark integration
+pyspark>=3.3.0
+py4j>=0.10.9
+
+# H2O.ai for AutoML
+h2o>=3.40.0
+
+# Data processing
+pyarrow>=10.0.0
+scikit-learn>=1.1.0
+
+# Utilities
+python-dotenv>=0.19.0
+requests>=2.28.0

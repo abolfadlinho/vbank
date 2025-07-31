@@ -1,0 +1,6 @@
+{
+  "ip": "localhost",
+  "port": 54321,
+  "max_mem_size": "4G",
+  "min_mem_size": "1G"
+}

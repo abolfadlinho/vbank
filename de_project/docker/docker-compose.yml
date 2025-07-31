@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: transaction_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: hamada
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # Apache Airflow
+  airflow-webserver:
+    image: apache/airflow:2.5.0
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres:5432/fraud_detection
+      AIRFLOW__CORE__FERNET_KEY: your_fernet_key_here
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/dags/scripts
+      - ./configs:/opt/airflow/dags/configs
+      - ./logs:/opt/airflow/logs
+      - ./models:/opt/airflow/models
+    command: >
+      bash -c "airflow db init &&
+               airflow users create --username admin --firstname Admin --lastname Admin --role Admin --email admin@example.com --password admin &&
+               airflow webserver"
+
+  airflow-scheduler:
+    image: apache/airflow:2.5.0
+    depends_on:
+      - postgres
+      - airflow-webserver
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres:5432/fraud_detection
+      AIRFLOW__CORE__FERNET_KEY: your_fernet_key_here
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./scripts:/opt/airflow/dags/scripts
+      - ./configs:/opt/airflow/dags/configs
+      - ./logs:/opt/airflow/logs
+      - ./models:/opt/airflow/models
+    command: airflow scheduler
+
+  # Apache Spark Master
+  spark-master:
+    image: bitnami/spark:3.3
+    environment:
+      - SPARK_MODE=master
+      - SPARK_MASTER_PORT=7077
+      - SPARK_MASTER_WEBUI_PORT=8081
+    ports:
+      - "7077:7077"
+      - "8081:8081"
+    volumes:
+      - spark_warehouse:/opt/spark/warehouse
+
+  # Apache Spark Worker
+  spark-worker:
+    image: bitnami/spark:3.3
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=2G
+      - SPARK_WORKER_CORES=2
+    volumes:
+      - spark_warehouse:/opt/spark/warehouse
+
+  # H2O.ai Server
+  h2o:
+    image: h2oai/h2o-open-source-k8s:latest
+    ports:
+      - "54321:54321"
+    environment:
+      - H2O_ARGS=-name h2o-cluster
+
+volumes:
+  postgres_data:
+  spark_warehouse:

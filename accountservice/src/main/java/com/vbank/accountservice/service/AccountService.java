@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.vbank.accountservice.exception.InsufficientFundsException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -100,7 +101,7 @@ public class AccountService {
             throw new IllegalStateException("Source account is not active.");
         }*/
         if (fromAccount.getBalance().compareTo(amount) < 0) {
-            throw new IllegalStateException("Insufficient funds in the source account.");
+            throw new InsufficientFundsException("Insufficient funds in the source account.");
         }
 
         // Perform the transfer
